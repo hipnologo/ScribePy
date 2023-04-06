@@ -20,7 +20,7 @@ pip install ScribePy
 To use ScribePy, you first need to create an instance of the `ScribePy` class:
 
 ```python
-from ScribePy import ScribePy
+from ScribePy.scribepy import ScribePy
 
 source_code = '''
 def add(x, y):
