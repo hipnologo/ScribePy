@@ -15,7 +15,7 @@ def generate_html_docs(source_code):
     markdown_code = markdown(highlighted_code, extensions=['markdown.extensions.tables'])
     return markdown_code
 
-class scribepy:
+class ScribePy:
     """
     A class for generating documentation from Python source code.
     """

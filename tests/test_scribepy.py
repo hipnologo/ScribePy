@@ -1,6 +1,6 @@
 # tests/test_scribepy.py
 
-from scribepy import ScribePy
+from scribepy.scribepy import ScribePy
 
 def test_generate_html_docs():
     source_code = '''
