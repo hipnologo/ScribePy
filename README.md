@@ -58,3 +58,5 @@ For more information on how to contribute, please see the [contributing guidelin
 
 ### Support
 If you have any questions or need help using ScribePy, please post a question or [open an issue](https://github.com/hipnologo/ScribePy/issues) on GitHub.
+
+<a href="https://www.buymeacoffee.com/hipnologod" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
