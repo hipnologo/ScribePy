@@ -90,3 +90,24 @@ def test_cli_writes_output_file():
     written = output_file.read_text(encoding="utf-8")
     assert "# helpers" in written
     assert "## Classes" in written
+
+
+def test_markdown_output_escapes_html_in_untrusted_content():
+    source = textwrap.dedent(
+        '''
+        """<script>alert("xss")</script>"""
+
+        def demo(value: str = "<img src=x onerror=alert(1)>") -> str:
+            """`code` <b>bold</b>"""
+            return value
+        '''
+    )
+
+    docs = generate_markdown_docs(source, module_name='unsafe<script>alert(1)</script>')
+
+    assert "<script>" not in docs
+    assert "<img" not in docs
+    assert "<b>" not in docs
+    assert "&lt;script&gt;alert(" in docs
+    assert "&lt;img src=x onerror=alert(1)&gt;" in docs
+    assert "&lt;b&gt;bold&lt;/b&gt;" in docs

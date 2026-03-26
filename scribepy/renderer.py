@@ -3,28 +3,29 @@
 from __future__ import annotations
 
 from html import escape
+import re
 
 from .models import ClassDoc, FunctionDoc, ModuleDoc
 
 
 def render_markdown(module: ModuleDoc, include_source_path: bool = True) -> str:
     """Render a parsed module to Markdown."""
-    lines: list[str] = [f"# {module.name}"]
+    lines: list[str] = [f"# {_escape_markdown_text(module.name)}"]
 
     if include_source_path and module.path:
         lines.append("")
-        lines.append(f"`Source:` `{module.path}`")
+        lines.append(f"{_markdown_code_span('Source:')} {_markdown_code_span(module.path)}")
 
     if module.docstring:
         lines.append("")
-        lines.append(module.docstring.strip())
+        lines.append(_escape_markdown_text(module.docstring.strip()))
 
     if module.imports:
         lines.append("")
         lines.append("## Imports")
         lines.append("")
         for imported in module.imports:
-            lines.append(f"- `{imported}`")
+            lines.append(f"- {_markdown_code_span(imported)}")
 
     if module.functions:
         lines.append("")
@@ -132,17 +133,20 @@ def render_html(module: ModuleDoc, include_source_path: bool = True) -> str:
 
 
 def _render_class_markdown(class_doc: ClassDoc) -> list[str]:
-    lines = ["", f"### `{class_doc.name}`"]
+    lines = ["", f"### {_markdown_code_span(class_doc.name)}"]
     lines.append("")
-    lines.append(f"`Class:` `{_class_signature(class_doc)}`")
+    lines.append(f"{_markdown_code_span('Class:')} {_markdown_code_span(_class_signature(class_doc))}")
 
     if class_doc.decorators:
         lines.append("")
-        lines.append(f"`Decorators:` {', '.join(f'`@{item}`' for item in class_doc.decorators)}")
+        lines.append(
+            f"{_markdown_code_span('Decorators:')} "
+            f"{', '.join(_markdown_code_span(f'@{item}') for item in class_doc.decorators)}"
+        )
 
     if class_doc.docstring:
         lines.append("")
-        lines.append(class_doc.docstring.strip())
+        lines.append(_escape_markdown_text(class_doc.docstring.strip()))
 
     if class_doc.methods:
         lines.append("")
@@ -155,15 +159,19 @@ def _render_class_markdown(class_doc: ClassDoc) -> list[str]:
 
 def _render_function_markdown(function: FunctionDoc, level: int) -> list[str]:
     heading = "#" * level
-    lines = ["", f"{heading} `{function.name}`", "", f"```python\n{function.signature}\n```"]
+    lines = ["", f"{heading} {_markdown_code_span(function.name)}", ""]
+    lines.extend(_markdown_code_block(function.signature))
 
     if function.decorators:
         lines.append("")
-        lines.append(f"`Decorators:` {', '.join(f'`@{item}`' for item in function.decorators)}")
+        lines.append(
+            f"{_markdown_code_span('Decorators:')} "
+            f"{', '.join(_markdown_code_span(f'@{item}') for item in function.decorators)}"
+        )
 
     if function.docstring:
         lines.append("")
-        lines.append(function.docstring.strip())
+        lines.append(_escape_markdown_text(function.docstring.strip()))
 
     if function.parameters:
         parameter_rows = [
@@ -175,10 +183,10 @@ def _render_function_markdown(function: FunctionDoc, level: int) -> list[str]:
                 continue
             parameter_rows.append(
                 "| `{name}` | `{annotation}` | `{default}` | `{kind}` |".format(
-                    name=parameter.name,
-                    annotation=parameter.annotation or "",
-                    default=parameter.default or "",
-                    kind=parameter.kind,
+                    name=_escape_markdown_table_text(parameter.name),
+                    annotation=_escape_markdown_table_text(parameter.annotation or ""),
+                    default=_escape_markdown_table_text(parameter.default or ""),
+                    kind=_escape_markdown_table_text(parameter.kind),
                 )
             )
         if len(parameter_rows) > 2:
@@ -193,6 +201,27 @@ def _class_signature(class_doc: ClassDoc) -> str:
     if not class_doc.bases:
         return class_doc.name
     return f"{class_doc.name}({', '.join(class_doc.bases)})"
+
+
+def _escape_markdown_text(value: str) -> str:
+    return escape(value, quote=False)
+
+
+def _escape_markdown_table_text(value: str) -> str:
+    return escape(value, quote=False).replace("|", "\\|").replace("`", "\\`")
+
+
+def _markdown_code_span(value: str) -> str:
+    escaped = escape(value, quote=False)
+    longest_run = max((len(match.group(0)) for match in re.finditer(r"`+", escaped)), default=0)
+    fence = "`" * (longest_run + 1)
+    if escaped.startswith("`") or escaped.endswith("`"):
+        escaped = f" {escaped} "
+    return f"{fence}{escaped}{fence}"
+
+
+def _markdown_code_block(value: str) -> list[str]:
+    return ["    " + escape(line, quote=False) if line else "" for line in value.splitlines() or [""]]
 
 
 def _render_module_html(module: ModuleDoc, include_source_path: bool) -> str:

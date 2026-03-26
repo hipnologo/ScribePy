@@ -7,7 +7,7 @@ name = "ScribePy"
 version = "0.2.0"
 description = "AST-backed Python API documentation generator with Markdown and HTML output"
 authors = [
-  { name="Fabio Carvalho", email="hipnologo@proton.me" },
+  { name="Fabio Carvalho", email="hipnologo@gmail.com" },
 ]
 readme = "README.md"
 requires-python = ">=3.9"
