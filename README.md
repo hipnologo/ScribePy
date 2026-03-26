@@ -1,62 +1,94 @@
 # ScribePy
 
-ScribePy is a Python library for generating documentation from Python source code.
+ScribePy turns Python modules into readable API documentation.
 
-[![License: Apache License 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Forks](https://img.shields.io/github/forks/hipnologo/ScribePy)](https://github.com/hipnologo/ScribePy/network/members)
-[![Stars](https://img.shields.io/github/stars/hipnologo/ScribePy)](https://github.com/hipnologo/ScribePy/stargazers)
-[![Issues](https://img.shields.io/github/issues/hipnologo/ScribePy)](https://github.com/hipnologo/ScribePy/issues)
+It parses source with the Python AST, extracts module/class/function structure, preserves signatures, and renders the result as Markdown or a self-contained HTML page. It is useful for quick internal docs, generated API references, CI artifacts, and package overviews.
+
+## What It Does
+
+- Parses Python modules from source strings or files
+- Extracts module docstrings, imports, classes, methods, functions, decorators, and signatures
+- Renders clean Markdown for docs sites and READMEs
+- Renders styled standalone HTML for sharing or publishing
+- Ships with a CLI for generating docs directly from a `.py` file
 
 ## Installation
 
-You can install ScribePy using pip:
-
-``` bash
+```bash
 pip install ScribePy
 ```
 
-## Usage
+## CLI
 
-To use ScribePy, you first need to create an instance of the `ScribePy` class:
+Generate Markdown to stdout:
+
+```bash
+scribepy path/to/module.py
+```
+
+Generate HTML to a file:
+
+```bash
+scribepy path/to/module.py --format html --output docs/module.html
+```
+
+## Library Usage
+
+Generate docs from a source string:
 
 ```python
-from ScribePy.scribepy import ScribePy
+from scribepy import ScribePy
 
 source_code = '''
-def add(x, y):
-    """
-    Add two numbers together.
-    """
+"""Utilities for math helpers."""
+
+def add(x: int, y: int) -> int:
+    """Add two integers."""
     return x + y
 '''
 
-p = ScribePy(source_code)
+scribe = ScribePy(source_code=source_code, module_name="math_helpers")
+
+markdown_docs = scribe.generate_markdown_docs()
+html_docs = scribe.generate_html_docs()
 ```
 
-Once you have an instance of the ScribePy class, you can generate HTML documentation using the generate_html_docs method:
+Parse a file and render it manually:
 
 ```python
-docs = p.generate_html_docs()
-print(docs)
+from scribepy import parse_file, render_markdown
+
+module = parse_file("package/example.py")
+docs = render_markdown(module)
 ```
 
-This will generate HTML documentation for the provided source code.
+## Example Output
 
-### Documentation
-For more information, see the [official documentation](https://pypi.org/project/ScribePy/) or the [GitHub repository](https://pypi.org/project/ScribePy/).
+Markdown output includes:
 
-### Contributing
-Contributions are welcome! To contribute to ScribePy, please follow these guidelines:
+- Module title and source path
+- Module docstring
+- Import inventory
+- Function signatures and parameter tables
+- Class sections with method breakdowns
 
-* Fork the repository.
-* Create a new branch for your changes.
-* Make your changes and write tests for them.
-* Run the tests using pytest to make sure they pass.
-* Submit a pull request.
+## Development
 
-For more information on how to contribute, please see the [contributing guidelines](https://github.com/hipnologo/ScribePy/blob/main/CONTRIBUTING.md) in the GitHub repository.
+Run tests:
 
-### Support
-If you have any questions or need help using ScribePy, please post a question or [open an issue](https://github.com/hipnologo/ScribePy/issues) on GitHub.
+```bash
+pytest
+```
 
-<a href="https://www.buymeacoffee.com/hipnologod" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+Build a distribution:
+
+```bash
+python -m build
+```
+
+## Roadmap
+
+- Recursive package documentation
+- Optional filtering for private members
+- Docstring style awareness for richer parameter descriptions
+- Static site output for multi-module projects

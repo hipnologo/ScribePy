@@ -5,8 +5,8 @@ with open("README.md", "r") as fh:
 
 setup(
     name='ScribePy',
-    version='0.1.2',
-    description='Python library for generating documentation',
+    version='0.2.0',
+    description='AST-backed Python API documentation generator with Markdown and HTML output',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/hipnologo/ScribePy',
@@ -14,19 +14,21 @@ setup(
     author_email='hipnologo@gmail.com',
     license='Apache License, Version 2.0',
     packages=find_packages(),
+    python_requires='>=3.9',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
-    keywords='documentation',
-    install_requires=[
-        'markdown>=3.3.3',
-        'Pygments>=2.7.4',
-    ],
+    keywords='documentation api ast cli',
+    entry_points={
+        'console_scripts': [
+            'scribepy=scribepy.cli:main',
+        ],
+    },
 )
